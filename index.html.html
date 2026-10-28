@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculateur de lot</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#656565;--card:#f5f5f2;--bd:#d9d9d4;--ac:#1f6feb;--ok:#1a7f37;--okbg:#dafbe1;--wn:#7d4e00;--wnbg:#fff1c2;--bd2:#a02020;--bdbg:#ffe3e0;--in:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16171a;--fg:#ececec;--mut:#9a9a9a;--card:#202226;--bd:#363940;--ac:#5aa1ff;--ok:#56d364;--okbg:#12301a;--wn:#e3b341;--wnbg:#3a2e0b;--bd2:#ff8a80;--bdbg:#3d1a18;--in:#16171a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#16171a;--fg:#ececec;--mut:#9a9a9a;--card:#202226;--bd:#363940;--ac:#5aa1ff;--ok:#56d364;--okbg:#12301a;--wn:#e3b341;--wnbg:#3a2e0b;--bd2:#ff8a80;--bdbg:#3d1a18;--in:#16171a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px 14px 40px}
+h1{font-size:20px;margin:0}h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin:22px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+input,select,button{font:inherit;color:var(--fg);background:var(--in);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;width:100%;min-height:40px}
+button{cursor:pointer;width:auto}
+.f{margin-bottom:10px}
+.lot{text-align:center;padding:16px}.lot .n{font-size:38px;font-weight:700;letter-spacing:-.02em}.lot .l{color:var(--mut);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.m{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}.m b{display:block;font-size:16px}.m span{font-size:12px;color:var(--mut)}
+.msg{margin-top:10px;padding:10px 12px;border-radius:10px;font-weight:600}
+.ok{background:var(--okbg);color:var(--ok)}.wn{background:var(--wnbg);color:var(--wn)}.bad{background:var(--bdbg);color:var(--bd2)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:480px;font-size:13px}th{font-size:11px;color:var(--mut);text-align:left;padding:4px}td{padding:3px}td input{min-height:34px;padding:5px 6px}
+.s{background:transparent;color:var(--mut);padding:4px 10px;min-height:32px;font-size:13px}
+.note{font-size:12px;color:var(--mut);margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><h1 data-i="title"></h1><select id="lang" style="width:auto" aria-label="Langue"><option value="fr">Français</option><option value="ht">Kreyòl</option></select></div>
+<p class="note" data-i="sub"></p>
+
+<h2 data-i="secTrade"></h2>
+<div class="card">
+<div class="row"><div class="f"><label data-i="acct"></label><select id="acct"></select></div><div class="f"><label data-i="bal"></label><input id="bal" inputmode="decimal"></div></div>
+<div class="row"><div class="f"><label data-i="pct"></label><input id="pct" inputmode="decimal"></div><div class="f"><label data-i="fix"></label><input id="fix" inputmode="decimal"></div></div>
+<div class="row"><div class="f"><label data-i="pair"></label><select id="pair"></select></div><div class="f"><label data-i="dir"></label><select id="dir"><option>BUY</option><option>SELL</option></select></div></div>
+<div class="row"><div class="f"><label data-i="entry"></label><input id="entry" inputmode="decimal"></div><div class="f"><label data-i="sl"></label><input id="sl" inputmode="decimal"></div></div>
+<div class="f" style="margin-bottom:0"><label data-i="tp"></label><input id="tp" inputmode="decimal"></div>
+</div>
+
+<h2 data-i="secRes"></h2>
+<div class="card lot"><div class="l" data-i="lot"></div><div class="n" id="rLot">—</div></div>
+<div class="grid">
+<div class="m"><span data-i="riskReal"></span><b id="rRisk">—</b></div>
+<div class="m"><span data-i="slPips"></span><b id="rPips">—</b></div>
+<div class="m"><span data-i="maxSl"></span><b id="rMax">—</b></div>
+<div class="m"><span data-i="rr"></span><b id="rRR">—</b></div>
+<div class="m"><span data-i="gain"></span><b id="rGain">—</b></div>
+<div class="m"><span data-i="verdict"></span><b id="rVer">—</b></div>
+</div>
+<div class="msg" id="msg"></div>
+
+<h2 data-i="secCfg"></h2>
+<div class="card">
+<div class="tw"><table><thead><tr><th data-i="cPair"></th><th data-i="cCon"></th><th data-i="cPip"></th><th data-i="cQ"></th><th data-i="cMin"></th><th data-i="cStep"></th><th></th></tr></thead><tbody id="pairs"></tbody></table></div>
+<div class="row" style="margin-top:8px"><button id="addPair" data-i="addPair"></button><button class="s" id="reset" data-i="reset"></button></div>
+<p class="note" data-i="noteP"></p>
+</div>
+<h2 data-i="rates"></h2>
+<div class="card"><div class="row" id="ratesBox"></div><button id="addCur" style="margin-top:8px" data-i="addCur"></button><p class="note" data-i="noteR"></p></div>
+<p class="note" data-i="disc"></p>
+</main>
+<script>
+var K="lotcalc_v1";
+var DP=[["XAUUSD",100,0.1,"USD",0.01,0.01],["EURUSD",100000,0.0001,"USD",0.01,0.01],["GBPUSD",100000,0.0001,"USD",0.01,0.01],["BTCUSD",1,1,"USD",0.01,0.01],["USDJPY",100000,0.01,"JPY",0.01,0.01],["USDCAD",100000,0.0001,"CAD",0.01,0.01],["AUDUSD",100000,0.0001,"USD",0.01,0.01],["EURGBP",100000,0.0001,"GBP",0.01,0.01],["GBPJPY",100000,0.01,"JPY",0.01,0.01]];
+function defs(){var p=DP.map(function(a){return{n:a[0],c:a[1],p:a[2],q:a[3],m:a[4],s:a[5]}});return{pairs:p,rates:{USD:1,EUR:1.09,GBP:1.3,JPY:0.0067,CAD:0.73,CHF:1.12,AUD:0.65,NZD:0.59},f:{lang:"fr",acct:"EUR",bal:"500",pct:"1",fix:"5",pair:"XAUUSD",dir:"SELL",entry:"4132.47",sl:"4142.22",tp:"4112.97"}}}
+var S;try{var j=localStorage.getItem(K);S=j?JSON.parse(j):null}catch(e){S=null}
+if(!S||!S.pairs||!S.rates||!S.f)S=defs();
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+var L={fr:{title:"Calculateur de lot",sub:"Valeurs d’exemple pré-remplies : remplace-les par ton trade. Tes paires et taux sont gardés dans ce navigateur.",secTrade:"Ton trade",acct:"Devise du compte",bal:"Solde du compte",pct:"Risque (%)",fix:"Risque fixe (optionnel)",pair:"Paire",dir:"Direction",entry:"Prix d’entrée",sl:"Stop Loss",tp:"Take Profit (optionnel)",secRes:"Résultat",lot:"LOT RECOMMANDÉ",riskReal:"Risque réel",slPips:"SL en pips",maxSl:"SL max (lot minimum)",rr:"RR",gain:"Gain potentiel",verdict:"Verdict RR",secCfg:"Paires",cPair:"Paire",cCon:"Contrat",cPip:"1 pip",cQ:"Cotation",cMin:"Lot min",cStep:"Pas",addPair:"+ Ajouter une paire",reset:"Réinitialiser",noteP:"Contrat = unités par lot. Le lot minimum, le pas et le contrat varient selon le courtier : vérifie la spécification du contrat dans MT5. Les valeurs par défaut (0,01, XAUUSD = 100 oz, 1 pip or = 0,10 $, BTC = 1 par lot) sont des hypothèses.",rates:"Taux (1 unité = ? USD)",addCur:"+ Ajouter une devise",noteR:"Ces taux sont des exemples approximatifs : mets-les à jour avec les cours réels.",disc:"Outil de calcul uniquement, pas un conseil financier.",okM:"Le lot respecte ton risque.",minM:"Le lot minimum dépasse ton risque. Réduis le SL ou renonce au trade.",dBuy:"Vérifie ton SL : il doit être sous l’entrée.",dSell:"Vérifie ton SL : il doit être au-dessus de l’entrée.",fill:"Remplis l’entrée et le SL.",unk:"Paire ou devise introuvable.",tpW:"TP du mauvais côté",good:"Bon (≥ 1:2)",weak:"Faible (< 1:2)",bad:"Mauvais (< 1:1)",np:"Nom de la paire (ex : US30)",nc:"Code de la devise (ex : SEK)",nv:"Valeur de 1 unité en USD"},
+ht:{title:"Kalkilatè lot",sub:"Valè egzanp yo ranpli deja : ranplase yo ak trade ou a. Pè ak taux ou yo rete nan navigatè sa a.",secTrade:"Trade ou a",acct:"Dev kont lan",bal:"Balans kont",pct:"Risk (%)",fix:"Risk fiks (opsyonèl)",pair:"Pè",dir:"Direksyon",entry:"Pri antre",sl:"Stop Loss",tp:"Take Profit (opsyonèl)",secRes:"Rezilta",lot:"LOT REKÒMANDE",riskReal:"Risk reyèl",slPips:"SL an pips",maxSl:"SL maks (lot minimòm)",rr:"RR",gain:"Pwofi potansyèl",verdict:"Verdik RR",secCfg:"Pè yo",cPair:"Pè",cCon:"Kontra",cPip:"1 pip",cQ:"Kotasyon",cMin:"Lot min",cStep:"Step",addPair:"+ Ajoute yon pè",reset:"Remete default",noteP:"Kontra = inite pa lot. Lot minimòm, step ak kontra yo chanje selon brokè a : verifye spesifikasyon kontra a nan MT5. Valè default yo (0.01, XAUUSD = 100 oz, 1 pip or = 0.10 $, BTC = 1 pa lot) se sipozisyon.",rates:"Taux (1 inite = ? USD)",addCur:"+ Ajoute yon dev",noteR:"Taux sa yo se egzanp apwoksimatif : mete yo ajou ak pri reyèl yo.",disc:"Zouti kalkil sèlman, se pa konsèy finansye.",okM:"Lot la respekte risk ou.",minM:"Lot minimòm lan depase risk ou. Rediri SL a oswa kite trade a.",dBuy:"Verifye SL ou : li dwe anba antre a.",dSell:"Verifye SL ou : li dwe anlè antre a.",fill:"Ranpli antre a ak SL a.",unk:"Pè oswa dev pa jwenn.",tpW:"TP nan move bò",good:"Bon (≥ 1:2)",weak:"Fèb (< 1:2)",bad:"Move (< 1:1)",np:"Non pè a (egz : US30)",nc:"Kòd dev la (egz : SEK)",nv:"Valè 1 inite an USD"}};
+function t(k){return L[S.f.lang][k]}
+function $(i){return document.getElementById(i)}
+function num(v){var n=parseFloat(String(v).replace(",","."));return isNaN(n)?NaN:n}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function dec(x){var s=String(x);return s.indexOf(".")<0?0:s.split(".")[1].length}
+function fmt(n,d){return n.toLocaleString(S.f.lang==="fr"?"fr-FR":"fr-HT",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function texts(){document.querySelectorAll("[data-i]").forEach(function(e){e.textContent=t(e.getAttribute("data-i"))});document.documentElement.lang=S.f.lang==="fr"?"fr":"ht"}
+function selects(){
+ $("acct").innerHTML=Object.keys(S.rates).map(function(c){return"<option>"+esc(c)+"</option>"}).join("");
+ $("pair").innerHTML=S.pairs.map(function(p){return"<option>"+esc(p.n)+"</option>"}).join("");
+ ["acct","pair","dir"].forEach(function(k){var ok=Array.prototype.some.call($(k).options,function(o){return o.value===S.f[k]});if(!ok)S.f[k]=$(k).options[0]?$(k).options[0].value:"";$(k).value=S.f[k]});
+}
+function tables(){
+ $("pairs").innerHTML=S.pairs.map(function(p,i){return"<tr><td><input data-pi='"+i+"' data-k='n' value='"+esc(p.n)+"'></td><td><input data-pi='"+i+"' data-k='c' inputmode='decimal' value='"+p.c+"'></td><td><input data-pi='"+i+"' data-k='p' inputmode='decimal' value='"+p.p+"'></td><td><input data-pi='"+i+"' data-k='q' value='"+esc(p.q)+"'></td><td><input data-pi='"+i+"' data-k='m' inputmode='decimal' value='"+p.m+"'></td><td><input data-pi='"+i+"' data-k='s' inputmode='decimal' value='"+p.s+"'></td><td><button class='s' data-del='"+i+"' aria-label='Supprimer'>✕</button></td></tr>"}).join("");
+ $("ratesBox").innerHTML=Object.keys(S.rates).map(function(c){return"<div class='f'><label>"+esc(c)+(c==="USD"?" (=1)":"")+"</label><input data-rc='"+esc(c)+"' inputmode='decimal' value='"+S.rates[c]+"'"+(c==="USD"?" disabled":"")+"></div>"}).join("");
+}
+function calc(){
+ var f=S.f,P=null;S.pairs.forEach(function(p){if(p.n===f.pair)P=p});
+ var bal=num(f.bal),pct=num(f.pct),fix=num(f.fix),en=num(f.entry),sl=num(f.sl),tp=num(f.tp);
+ var out={lot:"—",risk:"—",pips:"—",max:"—",rr:"—",gain:"—",ver:"—"},cls="wn",msg="";
+ var ra=S.rates[f.acct],rq=P?S.rates[P.q]:NaN;
+ if(!P||!(ra>0)||!(rq>0)){msg=t("unk")}
+ else if(isNaN(en)||isNaN(sl)||en===sl){msg=t("fill")}
+ else if((f.dir==="BUY"&&sl>=en)||(f.dir==="SELL"&&sl<=en)){msg=f.dir==="BUY"?t("dBuy"):t("dSell");cls="bad"}
+ else{
+  var risk=fix>0?fix:(bal*pct/100),ru=risk*ra,d=Math.abs(en-sl),c=P.c,step=P.s>0?P.s:0.01,mn=P.m>0?P.m:step;
+  var theo=ru/(d*c*rq),lot=Math.max(Math.floor(theo/step+1e-6)*step,mn),dd=Math.max(dec(step),dec(mn));
+  var realU=lot*d*c*rq,realA=realU/ra;
+  out.lot=lot.toFixed(dd);out.risk=fmt(realA,2)+" "+f.acct+(bal>0?" ("+fmt(realA/bal*100,2)+" %)":"");
+  out.pips=fmt(d/P.p,1);out.max=fmt(ru/(mn*c*rq)/P.p,1);
+  if(theo<mn){msg=t("minM");cls="wn"}else{msg=t("okM");cls="ok"}
+  if(!isNaN(tp)&&tp!==en){var wrong=(f.dir==="BUY"&&tp<en)||(f.dir==="SELL"&&tp>en);
+   if(wrong){out.ver=t("tpW")}else{var td=Math.abs(tp-en),rr=td/d;out.rr="1 : "+fmt(rr,2);out.gain=fmt(lot*td*c*rq/ra,2)+" "+f.acct;out.ver=rr>=2?t("good"):rr>=1?t("weak"):t("bad")}}
+ }
+ $("rLot").textContent=out.lot;$("rRisk").textContent=out.risk;$("rPips").textContent=out.pips;$("rMax").textContent=out.max;$("rRR").textContent=out.rr;$("rGain").textContent=out.gain;$("rVer").textContent=out.ver;
+ var m=$("msg");m.textContent=msg;m.className="msg "+cls;
+}
+function ui(){texts();selects();tables();$("lang").value=S.f.lang;["bal","pct","fix","entry","sl","tp"].forEach(function(k){$(k).value=S.f[k]});calc()}
+["bal","pct","fix","entry","sl","tp"].forEach(function(k){$(k).addEventListener("input",function(){S.f[k]=this.value;save();calc()})});
+["acct","pair","dir"].forEach(function(k){$(k).addEventListener("change",function(){S.f[k]=this.value;save();calc()})});
+$("lang").addEventListener("change",function(){S.f.lang=this.value;save();ui()});
+$("pairs").addEventListener("change",function(e){var el=e.target,i=el.getAttribute("data-pi");if(i===null)return;var k=el.getAttribute("data-k"),p=S.pairs[i],v=el.value.trim();
+ if(k==="n"||k==="q"){v=v.toUpperCase();if(!v){el.value=p[k];return}if(k==="n"&&S.f.pair===p.n)S.f.pair=v;p[k]=v}
+ else{var n=num(v);if(!(n>0)){el.value=p[k];return}p[k]=n}
+ save();var keep=S.f.pair;selects();S.f.pair=keep;$("pair").value=keep;calc()});
+$("pairs").addEventListener("click",function(e){var i=e.target.getAttribute("data-del");if(i===null||S.pairs.length<2)return;S.pairs.splice(i,1);save();selects();tables();calc()});
+$("ratesBox").addEventListener("change",function(e){var c=e.target.getAttribute("data-rc");if(!c)return;var n=num(e.target.value);if(!(n>0)){e.target.value=S.rates[c];return}S.rates[c]=n;save();calc()});
+$("addPair").addEventListener("click",function(){var n=prompt(t("np"));if(!n)return;n=n.trim().toUpperCase();if(!n||S.pairs.some(function(p){return p.n===n}))return;S.pairs.push({n:n,c:100000,p:0.0001,q:"USD",m:0.01,s:0.01});save();selects();tables();calc()});
+$("addCur").addEventListener("click",function(){var c=prompt(t("nc"));if(!c)return;c=c.trim().toUpperCase();var v=num(prompt(t("nv")));if(!c||!(v>0)||S.rates[c])return;S.rates[c]=v;save();selects();tables();calc()});
+$("reset").addEventListener("click",function(){var l=S.f.lang;S=defs();S.f.lang=l;save();ui()});
+ui();
+</script>
+</body>
+</html>
